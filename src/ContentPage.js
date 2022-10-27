@@ -28,8 +28,19 @@ export function ContentPage () {
   const takePhoto = async (e) => {
     e.preventDefault()
     const imgdata = camera.current.takePhoto()
-    const cid = null
-    setImages([{ cid: cid, data: imgdata }, ...images])
+    try {
+      // Build a DAG from the file data to obtain the root CID.
+      setStatus('encoding')
+      const theFile = dataURLtoFile(imgdata)
+      setStatus('uploading')
+      const cid = await uploader.uploadFile(theFile)
+      setImages([{ cid: cid, data: imgdata }, ...images])
+    } catch (err) {
+      console.error(err)
+      setError(err)
+    } finally {
+      setStatus('done')
+    }
   }
 
   if (!uploader) return null
