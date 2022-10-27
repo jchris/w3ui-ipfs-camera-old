@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react'
 import { useUploader } from '@w3ui/react-uploader'
+import { useUploadsList } from '@w3ui/react-uploads-list'
 import { withIdentity } from './components/Authenticator'
 import { Camera } from 'react-camera-pro'
 import './spinner.css'
@@ -22,6 +23,8 @@ export function ContentPage () {
   const [status, setStatus] = useState('')
   const [error, setError] = useState(null)
   const [images, setImages] = useState([])
+  // eslint-disable-next-line no-unused-vars
+  const {loading, error: listError, data: listData, reload: listReload} = useUploadsList();
 
   const camera = useRef(null)
 
@@ -44,7 +47,11 @@ export function ContentPage () {
   }
 
   if (!uploader) return null
+
+  console.log(listData)
+
   const printStatus = status === 'done' && error ? error : status
+  const printListData = (listData && listData.results) || []
 
   return (
     <div>
@@ -53,9 +60,12 @@ export function ContentPage () {
        </p>
        <Camera ref={camera} />
        <ul className='images'>
-       {images.map(({ cid, data }) => (
-         <ImageListItem key={cid} cid={cid} data={data} />
-       ))}
+        {images.map(({ cid, data }) => (
+          <ImageListItem key={cid} cid={cid} data={data} />
+        ))}
+        {printListData.map(({dataCid: cid}) => (
+          <ImageListItem key={cid} cid={cid} />
+        ))}
        </ul>
      </div>
   )
